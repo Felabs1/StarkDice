@@ -1,0 +1,16 @@
+pub const HOME_POSITION_PLAYER_1: u32 = 105;
+pub const HOME_POSITION_PLAYER_2: u32 = 205;
+
+pub const TURNING_POINTS_PLAYER_1: u32 = 50;
+pub const TURNING_POINTS_PLAYER_2: u32 = 24;
+
+pub const PLAYER_1_START_POSITION: u32 = 0;
+pub const PLAYER_2_START_POSITION: u32 = 26;
+
+pub const SAFE_ZONES: [u32; 8] = [0, 8, 13, 21, 26, 34, 39, 47];
+
+pub const BASE_POSITIONS_PLAYER_1: [u32; 4] = [500, 501, 502, 503];
+pub const BASE_POSITIONS_PLAYER_2: [u32; 4] = [600, 601, 602, 603];
+
+pub const HOME_ENTRANCE_PLAYER_1: [u32; 5] = [100, 101, 102, 103, 104];
+pub const HOME_ENTRANCE_PLAYER_2: [u32; 5] = [200, 201, 202, 203, 204];
