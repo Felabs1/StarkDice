@@ -9,6 +9,8 @@ mod dice_system {
     use dojo::model::{ModelStorage};
     use starkdice_contracts::models::game::{Game, GameTrait};
     use starkdice_contracts::models::dice_commit::DiceRoll;
+    use starkdice_contracts::models::piece::{Piece, PieceTrait};
+    use starkdice_contracts::models::player::{Player};
     use starknet::{ContractAddress, get_caller_address};
 
     #[abi(embed_v0)]
@@ -25,6 +27,9 @@ mod dice_system {
             let roller: ContractAddress = get_caller_address();
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
+            let mut player: Player = world.read_model((game_id, get_caller_address()));
+
+            assert(game.current_turn == player_index, 'not_your_turn');
 
 
            
@@ -34,8 +39,25 @@ mod dice_system {
                 roller: get_caller_address(),
                 value: value,
             };
-            game.dice_roll = 'DICE_ROLLED';
+
+            // we need to check if piece is eligible before we move to next turn
+            let mut index_checker: u8 = 0;
+            let mut eligible_pieces: u8 = 0;
+            while (index_checker < 4) {
+                let mut piece: Piece = world.read_model((game_id, player_index, index_checker));
+                if piece.is_eligible(player_index, value) {
+                    eligible_pieces += 1;
+                }
+                index_checker += 1;
+            }
+
+            if eligible_pieces > 0 {
+                game.dice_roll = 'DICE_ROLLED';
+            }else{
+                game.increment_turn();
+            }
             world.write_model(@dice_roll);
+            world.write_model(@game);
 
            
             // self.emit_dice_rolled(game_id, turn_number, roller, value);

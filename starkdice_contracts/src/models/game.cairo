@@ -1,11 +1,13 @@
 use core::num::traits::{SaturatingAdd};
+use starknet::ContractAddress;
 #[derive(Copy, Drop, Serde, Debug)]
 #[dojo::model]
 pub struct Game {
     #[key]
     pub id: felt252, 
     pub is_active: bool,
-    pub current_turn: u32,
+    pub owner: ContractAddress,
+    pub current_turn: u8,
     pub dice_roll: felt252,
     pub winner: u32,
     pub max_players: u8,
@@ -18,7 +20,7 @@ pub impl GameImpl of GameTrait {
         assert(self.joined_players < self.max_players, 'lobby_full');
         assert(self.is_active == false, 'game_started');
         assert(self.winner == 1000, 'game_ended');
-        self.joined_players.saturating_add(1);
+        self.joined_players = self.joined_players + 1;
     }
 
     fn start_match(ref self: Game) {
@@ -28,9 +30,9 @@ pub impl GameImpl of GameTrait {
 
     fn increment_turn(ref self: Game) {
         let joined_players: u8 = self.joined_players;
-        self.current_turn.saturating_add(1);
+        self.current_turn += 1;
         if self.current_turn == joined_players.into() {
-            self.current_turn = 0_u32;
+            self.current_turn = 0_u8;
         }
         self.dice_roll = 'DICE_NOT_ROLLED';
     }

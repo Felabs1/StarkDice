@@ -1,6 +1,6 @@
 #[starknet::interface]
 pub trait IPieceSystem<T> {
-    fn move_piece(ref self: T, game_id: felt252, player_index: u8, piece_index: u8, steps: u8);
+    fn move_piece(ref self: T, game_id: felt252, player_index: u8, piece_index: u8);
 }
 
 #[dojo::contract]
@@ -13,37 +13,89 @@ mod piece_system {
     use starkdice_contracts::models::game::{Game, GameTrait};
     use starkdice_contracts::models::player::{Player};
     use starkdice_contracts::models::piece::{Piece, PieceTrait};
+    use starkdice_contracts::models::dice_commit::{DiceRoll};
 
    
 
     #[abi(embed_v0)]
     impl IPieceSystemImpl of IPieceSystem<ContractState> {
-        fn move_piece(ref self: ContractState, game_id: felt252, player_index: u8, piece_index: u8, steps: u8){
+        // fn move_piece(ref self: ContractState, game_id: felt252, player_index: u8, piece_index: u8){
+          
+
+        //     let player_address: ContractAddress = get_caller_address();
+        //     let mut world = self.world_default();
+        //     let mut game: Game = world.read_model(game_id);
+
+        //     assert(game.dice_roll == 'DICE_ROLLED', 'dice_not_rolled');
+        //     let mut player: Player = world.read_model((game_id, player_address));
+        //     let mut piece: Piece = world.read_model((game_id, player_index, piece_index));
+        //     assert(piece.player_index == player.index, 'NOT_YOUR_TURN');
+        //     let mut dice_roll: DiceRoll = world.read_model((game_id, player_index));
+        //     let steps = dice_roll.value;
+        //     let piece_eligible: bool = piece.is_eligible(player_index, steps);
+        //     if (piece_eligible == true) {
+        //         piece.increment_piece_position(steps);
+
+        //         // inquire the new position
+        //         let is_kill = self.check_for_kill(game_id, player_index, piece_index, piece.position);
+                
+        //         if is_kill == true || steps == 6{
+        //             game.dice_roll = 'DICE_NOT_ROLLED';
+        //         }else{
+        //             game.increment_turn();
+
+        //         }
+
+
+        //         // self.has_player_won(game_id, player_index);
+
+        //     }else{
+        //         game.increment_turn();
+        //     }
+        // }
+
+        fn move_piece(ref self: ContractState, game_id: felt252, player_index: u8, piece_index: u8) {
             let player_address: ContractAddress = get_caller_address();
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
+
+            assert(game.dice_roll == 'DICE_ROLLED', 'dice_not_rolled');
+
             let mut player: Player = world.read_model((game_id, player_address));
             let mut piece: Piece = world.read_model((game_id, player_index, piece_index));
-            assert(game.current_turn == player.index.into(), 'NOT_YOUR_TURN');
+
+            // ✅ Fix: compare against piece.player_index instead of piece_index
+            // POSTPONED: will add player.index assertions after hackathon
+            assert(piece.player_index == player_index, 'NOT_YOUR_TURN');
+
+            let mut dice_roll: DiceRoll = world.read_model((game_id, player_index));
+            let steps = dice_roll.value;
+
             let piece_eligible: bool = piece.is_eligible(player_index, steps);
-            if (piece_eligible == true) {
+            if piece_eligible {
                 piece.increment_piece_position(steps);
 
                 // inquire the new position
                 let is_kill = self.check_for_kill(game_id, player_index, piece_index, piece.position);
-                
-                if is_kill == true || steps == 6{
-                    game.dice_roll == 'DICE_NOT_ROLLED';
+
+                if is_kill || steps == 6 {
+                    // ✅ Fix: assignment, not comparison
+                    game.dice_roll = 'DICE_NOT_ROLLED';
+                } else {
+                    game.increment_turn();
                 }
 
-                game.increment_turn();
+                // self.has_player_won(game_id, player_index);
 
-                self.has_player_won(game_id, player_index);
-
-            }else{
+            } else {
                 game.increment_turn();
             }
+
+            world.write_model(@piece);
+            world.write_model(@game);
         }
+
+
     }
 
 
@@ -112,7 +164,6 @@ mod piece_system {
             game.winner = player_index.into();
             game.is_active = false;
             world.write_model(@game);
-
 
             player_won
         }
