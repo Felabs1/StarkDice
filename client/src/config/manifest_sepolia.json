@@ -1681,10 +1681,7 @@
       "init_calldata": [],
       "tag": "dojo_starter-dice_system",
       "selector": "0x4f64378880b77037cb56f609db7bfd1414e38ab5d3c953c52c9c3bf4e51a45",
-      "systems": [
-        "roll_dice",
-        "upgrade"
-      ]
+      "systems": ["roll_dice", "upgrade"]
     },
     {
       "address": "0x57fcdbab1788102d69c7878a43bffa337b796500514464b05a96a9509de1ef5",
@@ -1916,13 +1913,7 @@
       "init_calldata": [],
       "tag": "dojo_starter-gamesystem",
       "selector": "0x29f474a7f0c27b0e3255d72ffc00e770c62ed3602b0169d20a20f8e5cc25e00",
-      "systems": [
-        "spawn",
-        "create_game",
-        "join_game",
-        "start_game",
-        "upgrade"
-      ]
+      "systems": ["spawn", "create_game", "join_game", "start_game", "upgrade"]
     },
     {
       "address": "0x59433ecbdb3274e8f361fb6aba6c4e2b9c89325ee964bede7dcfcafd01ccb76",
@@ -2127,10 +2118,7 @@
       "init_calldata": [],
       "tag": "dojo_starter-piece_system",
       "selector": "0x1083e0f45490f440f559573bde4f6bbda3a591716aa9894986c34bc661223ca",
-      "systems": [
-        "move_piece",
-        "upgrade"
-      ]
+      "systems": ["move_piece", "upgrade"]
     }
   ],
   "libraries": [],

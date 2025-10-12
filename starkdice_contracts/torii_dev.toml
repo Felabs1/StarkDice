@@ -1,8 +1,6 @@
-[indexing]
-contracts = [
-  "erc20:0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", # ETH fee token
-  "erc20:0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d", # STRK fee token
-]
-[sql]
-historical = ["dojo_starter-Moves", "dojo_starter-Moved"]
 
+
+# world_address = "0x04d9778a74d2c9e6e7e4a24cbe913998a80de217c66ee173a604d06dea5469c3"
+world_address = "0x03a7e28319f3617da4135893c711c79a1306adcd87cca4fbd0ceda50ae397683"
+[server]
+http_cors_origins = ["*"]

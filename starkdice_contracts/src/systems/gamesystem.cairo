@@ -1,5 +1,6 @@
 #[starknet::interface]
 pub trait IGameSystem<T> {
+    fn spawn(ref self: T);
     fn create_game(ref self: T, game_id: felt252, max_players: u8);
     fn join_game(ref self: T, game_id: felt252);
     fn start_game(ref self: T, game_id: felt252);
@@ -7,14 +8,26 @@ pub trait IGameSystem<T> {
 
 #[dojo::contract]
 pub mod gamesystem {
-    use dojo::model::{ModelStorage};
+    use starknet::get_block_timestamp;
+use dojo::model::{ModelStorage};
     use starknet::{ContractAddress, get_caller_address};
     use super::IGameSystem;
     use starkdice_contracts::models::game::{Game, GameTrait};
-    use starkdice_contracts::models::player::{Player};
+    use starkdice_contracts::models::player::{Player, PlayerProfile};
     use starkdice_contracts::models::piece::{Piece};
     #[abi(embed_v0)]
     impl IGameSystemImpl of IGameSystem<ContractState> {
+        fn spawn(ref self: ContractState) {
+            let mut world = self.world_default();
+            let mut playerProfile = PlayerProfile {
+                owner: get_caller_address(),
+                games_won: 0,
+                games_lost: 0,
+                creation_day: get_block_timestamp()
+            };
+            world.write_model(@playerProfile);
+        }
+
         fn create_game(ref self: ContractState,game_id: felt252, max_players: u8) {
             let mut world = self.world_default();
 
@@ -76,13 +89,15 @@ pub mod gamesystem {
         fn join_game(ref self: ContractState, game_id: felt252) {
             let mut world = self.world_default();
             let mut game: Game = world.read_model(game_id);
+            let mut player: Player = world.read_model((game_id, get_caller_address()));
             let caller: ContractAddress = get_caller_address();
 
             // checks
             assert(game.is_active == false, 'game_started');
             assert(game.joined_players < game.max_players, 'players_full');
             assert(game.winner == 1000, 'game_ended');
-            assert(game.owner == get_caller_address(), 'allready_created');
+            assert(game.owner != get_caller_address(), 'allready_created');
+            assert(player.has_joined == false, 'player_exist');
 
             // assign index BEFORE increment
             let new_index = game.joined_players;
