@@ -21,9 +21,12 @@ import { usePlayers } from "../../dojo/hooks/usePlayers";
 import { usePieces } from "../../dojo/hooks/usePiece";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { useParams } from "react-router-dom";
-import { Piece } from "../../dojo/models.gen";
+import { Game, Piece } from "../../dojo/models.gen";
 import { useRollDiceAction } from "../../dojo/hooks/useRollDice";
 import { useMovePieceAction } from "../../dojo/hooks/useMovePiece";
+import { useStarkDiceEntities } from "../../utils/starkdiceState";
+import { useStarkDiceStore } from "../../store/strkDice";
+import GameHUD from "../GameHUD";
 
 const OFFSET_DISTANCE = -0.02;
 
@@ -337,6 +340,8 @@ class UI {
       if (!pickResult.hit) return;
       if (!this.diceMeshes.includes(pickResult.pickedMesh!)) return;
 
+      console.log("---------------",canRollDice());
+
       // Check if rolling is allowed at this moment
       if (!canRollDice()) {
         console.warn("Cannot roll dice now");
@@ -541,16 +546,24 @@ class UI {
 }
 
 interface LudoActions {
-  executeRollDice: (args?: any) => Promise<any>;
+  executeRollDice: (value: number) => Promise<any>;
   canRollDice: boolean;
   resetRollDiceState: () => void;
   executeMovePiece: (args?: any) => Promise<any>;
   canMovePiece: boolean;
   resetMovePieceState: () => void;
+  getCurrentGameId: () => string | null;
+  getCurrentPlayerIndex: () => number | null;
+  getCurrentGame: () => Game | undefined;
+  getCurrentPlayerDojo: () => Player | undefined;
+  getPlayerPieces: () => Piece[];
+  getCurrentTurnPlayer: () => 'P1' | 'P2' | null;
 }
 // Ludo Class
 class Ludo {
   public actions: LudoActions;
+  public gameId: string | undefined = undefined;
+  public currentPlayerIndex: number | undefined = undefined;
   currentPositions: Record<Player, number[]> = {
     P1: [],
     P2: [],
@@ -618,7 +631,7 @@ class Ludo {
       });
     }
 
-    console.log("♻️ Synced Ludo state from blockchain data", grouped);
+    console.log("♻️ Synced Ludo state from dojo data", grouped);
   }
 
   notifyStateChange(): void {
@@ -651,16 +664,50 @@ class Ludo {
     );
   }
 
+  private submitDiceRoll(value: number): void {
+  if (!value) {
+    console.warn("⚠️ Cannot submit to dojo - missing value");
+    return;
+  }
+  
+  this.actions.executeRollDice(value)
+    .then(() => console.log("✅ : Dice roll recorded"))
+    .catch((error) => {
+      console.error("❌ dojo: Failed to record dice roll:", error);
+      // Optionally: Show user notification that dojo sync failed
+    });
+}
+
+  private submitMovePiece(pieceIndex: number): void {
+  if (!pieceIndex) {
+    console.warn("⚠️ Cannot submit to dojo - missing value");
+    return;
+  }
+  
+    this.actions.executeMovePiece(pieceIndex)
+    .then(() => console.log("✅ Move piece recorded"))
+    .catch((error) => console.error("❌ Move failed:", error));
+}
+
   onDiceClick(value: DiceResult): void {
     console.log("dice clicked!");
     console.log(value.face[4]);
     this.diceValue = Number(value.face[4]);
     this.state = STATE.DICE_ROLLED;
+
+        // lets try executing
+    this.submitDiceRoll(this.diceValue);
+    
     this.checkForEligiblePieces();
+
+  
+
   }
 
   checkForEligiblePieces(): void {
-    const player = PLAYERS[this.turn];
+   // const player = PLAYERS[this.turn];
+   const player = this.actions. getCurrentTurnPlayer()
+   // console.log("❤️❤️❤️❤️❤️❤️checking the player turn update reach",this.actions. getCurrentTurnPlayer())
     const eligiblePieces = this.getEligiblePieces(player);
 
     if (eligiblePieces.length) {
@@ -732,7 +779,7 @@ class Ludo {
   }
 
   onPieceClick(event: BABYLON.Mesh): void {
-    console.log("piece clicked");
+    console.log("piece clicked",event.id);
     const string = event.id;
     const player = string.substring(0, 2);
     const piece = Number(string[3]);
@@ -746,6 +793,7 @@ class Ludo {
     if (BASE_POSITIONS[player].includes(currentPosition)) {
       this.setPiecePosition(player, piece, START_POSITIONS[player]);
       this.state = STATE.DICE_NOT_ROLLED;
+      this.submitMovePiece(piece);
       return;
     }
 
@@ -765,6 +813,8 @@ class Ludo {
 
       if (moveBy === 0) {
         clearInterval(interval);
+
+        this.submitMovePiece(piece);
 
         if (this.hasPlayerWon(player)) {
           alert(`Player ${player} has won`);
@@ -854,17 +904,29 @@ class Ludo {
 const LudoGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ludoRef = useRef<Ludo | null>(null);
+
+
+  const {state } = useStarkDiceEntities();
+
   const [gameInfo, setGameInfo] = useState({
     turn: 0,
     diceValue: 0,
     gameState: STATE.DICE_NOT_ROLLED as GameState,
   });
-  const { status } = useStarknetConnect();
+  const { status,address } = useStarknetConnect();
   const isConnected = status === "connected";
   const { gameId } = useParams();
   console.log(gameId);
 
+
+  const game = gameId ? state.getGame(gameId) : undefined;
+
+  const diceRoll = gameId ? state.getDiceRollsByGame(gameId): undefined;
+
   const { pieces, isLoading, error, refetch } = usePieces(gameId!);
+
+  //const pieces = state.getPiecesByGame(gameId!);
+
   const { rollDiceState, executeRollDice, canRollDice, resetRollDiceState } =
     useRollDiceAction();
   const {
@@ -874,6 +936,38 @@ const LudoGame: React.FC = () => {
     resetMovePieceState,
   } = useMovePieceAction();
   // console.log("Player pieces ", pieces);
+
+    const currentPlayer =  gameId &&address
+  ? state.players[`${ gameId}_${address}`]
+  : undefined;
+
+    const playerPieces = gameId &&  address 
+  ? state.getPiecesByPlayer(gameId, address) 
+  : [];
+
+  console.log(currentPlayer,  gameId ,address)
+
+  
+
+  const gameStateRef = useRef({
+      gameId,
+      game,
+      currentPlayer,
+      playerPieces,
+      canRollDice,
+      pieces
+    });
+
+useEffect(() => {
+  gameStateRef.current = {
+    gameId,
+    game,
+    currentPlayer,
+    playerPieces,
+    canRollDice,
+    pieces
+  };
+}, [gameId, game, currentPlayer, playerPieces, canRollDice,pieces]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -1044,12 +1138,24 @@ const LudoGame: React.FC = () => {
         executeMovePiece,
         canMovePiece,
         resetMovePieceState,
+        getCurrentGameId: () => gameStateRef.current.gameId as any,
+        getCurrentPlayerIndex: () => gameStateRef.current.currentPlayer ? Number(gameStateRef.current.currentPlayer.index) : null,
+        getCurrentGame: () => gameStateRef.current.game,
+        getCurrentPlayerDojo: () => gameStateRef.current.currentPlayer,
+        getPlayerPieces: () => gameStateRef.current.playerPieces,
+        getCurrentTurnPlayer: () => {
+        if (!gameStateRef.current.game) return null;
+        return Number(gameStateRef.current.game.current_turn) === 0 ? 'P1' : 'P2';
+      }
       });
       ludoRef.current.onStateChange = (state) => {
         setGameInfo(state);
       };
       ludoRef.current.syncPositionsFromServer(pieces);
-      ludoRef.current.actions.canRollDice = canRollDice;
+      // ludoRef.current.actions.canRollDice = canRollDice;
+      // ludoRef.current.gameId = gameId;
+      // ludoRef.current.currentPlayerIndex = currentPlayer ?  Number(currentPlayer.index): undefined;
+      
 
       // Start render loop
       engine.runRenderLoop(() => {
@@ -1070,6 +1176,48 @@ const LudoGame: React.FC = () => {
     };
   }, [pieces]);
 
+  useEffect(() => {
+
+    console.log("🔍 useEffect triggered with:", { 
+    ludoRefExists: !!ludoRef.current,
+    canRollDice, 
+    gameId, 
+    currentPlayer,
+    playerIndex: currentPlayer?.index 
+  });
+  if (ludoRef.current) {
+    console.log("🔄 Updating Ludo state:", { 
+      canRollDice, 
+      gameId, 
+      playerIndex: currentPlayer?.index 
+    });
+    
+    ludoRef.current.actions.canRollDice = canRollDice;
+    ludoRef.current.gameId = gameId;
+    ludoRef.current.currentPlayerIndex = currentPlayer 
+      ? Number(currentPlayer.index) 
+      : undefined;
+  }
+}, [canRollDice, gameId, currentPlayer?.index]);
+
+
+
+//   useEffect(() => {
+//     console.log(ludoRef.current && gameId && currentPlayer)
+//   if (ludoRef.current && gameId && currentPlayer) {
+//     console.log("🔄 Updating Ludo context:", {
+//       gameId: game_id,
+//       playerIndex: currentPlayer.index,
+//       canRollDice
+//     });
+    
+//     ludoRef.current.gameId = gameId;
+//     ludoRef.current.currentPlayerIndex = Number(currentPlayer.index);
+//     ludoRef.current.actions.canRollDice = canRollDice;
+//     ludoRef.current.actions.executeRollDice = executeRollDice;
+//   }
+// }, [gameId, currentPlayer?.index, canRollDice, executeRollDice]);
+
   return (
     <div
       style={{
@@ -1089,7 +1237,7 @@ const LudoGame: React.FC = () => {
           pointerEvents: "auto",
         }}
       />
-      <div
+      {/* <div
         style={{
           position: "absolute",
           top: 20,
@@ -1119,28 +1267,24 @@ const LudoGame: React.FC = () => {
             ? "🎲 Roll Dice"
             : "🎯 Select Piece"}
         </div>
-        <button
-          onClick={() => ludoRef.current?.resetGame()}
-          style={{
-            width: "100%",
-            padding: "10px 20px",
-            cursor: "pointer",
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            fontSize: "14px",
-            fontWeight: "bold",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            transition: "transform 0.1s",
-          }}
-          onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-          onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          🔄 Reset Game
-        </button>
-      </div>
+      </div> */}
+          <div style={{ 
+      width: '100vw', 
+      height: '100vh', 
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <GameHUD 
+        game={game}
+        currentPlayer={currentPlayer}
+        playerPieces={playerPieces}
+        diceRoll={diceRoll}
+        gameInfo={gameInfo}
+        canRollDice={canRollDice}
+      />
+    </div>
     </div>
   );
 };

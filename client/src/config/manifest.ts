@@ -2,7 +2,7 @@
 import sepolia from "./manifest_sepolia.json"; // sepolia manifest
 import mainnet from "./manifest_sepolia.json"; // change for the right mainnet manifest
 import slot from "./manifest_sepolia.json"; // change for the right slot manifest
-import localhost from "./manifest_dev.json";
+import localhost from "../../../starkdice_contracts/manifest_dev.json";
 
 // Define valid deploy types
 type DeployType = keyof typeof manifests;

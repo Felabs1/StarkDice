@@ -7,6 +7,7 @@ import { useStartGameAction } from "../../dojo/hooks/useStartGame";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { addAddressPadding } from "starknet";
 import { useNavigate } from "react-router-dom";
+import { useStarkDiceStore } from "../../store/strkDice";
 
 export default function GameLobby() {
   const { status, address } = useStarknetConnect();
@@ -21,6 +22,8 @@ export default function GameLobby() {
   const { games } = useGame();
   const roomData = games?.filter((game) => game.id === roomCode);
 
+  const {set_game_id} = useStarkDiceStore();
+
   const { startGameState, executeStartGame, canStartGame } =
     useStartGameAction();
 
@@ -32,7 +35,10 @@ export default function GameLobby() {
 
   const startGame = () => {
     executeStartGame(roomCode);
+    set_game_id(roomCode);
   };
+
+  // console.log(roomData)
 
   // Current user (for demo purposes, assume they're the host)
   const currentUserAddress = address;

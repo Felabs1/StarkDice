@@ -3,6 +3,9 @@ import { useAccount, useCall } from "@starknet-react/core";
 import { useDojoSDK } from "@dojoengine/sdk/react";
 import { Account, num } from "starknet";
 import useAppStore from "../../zustand/store";
+import { useParams } from "react-router-dom";
+import { useStarkDiceEntities } from "../../utils/starkdiceState";
+import { useStarknetConnect } from "./useStarknetConnect";
 
 interface MovePieceActionState {
   isLoading: boolean;
@@ -14,8 +17,6 @@ interface MovePieceActionState {
 interface useMovePieceActionReturn {
   movePieceState: MovePieceActionState;
   executeMovePiece: (
-    gameId: string,
-    playerIndex: number,
     pieceIndex: number
   ) => Promise<void>;
   canMovePiece: boolean;
@@ -23,10 +24,11 @@ interface useMovePieceActionReturn {
 }
 
 export const useMovePieceAction = (): useMovePieceActionReturn => {
-  const { account, status } = useAccount();
+  const { account } = useAccount();
+  const { status, address } = useStarknetConnect();
   const { client } = useDojoSDK();
+  const {state } = useStarkDiceEntities();
   const {
-    game,
     diceRoll,
     piece,
     updateGameCurrentTurn,
@@ -39,6 +41,11 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
     updatePieceIsHome,
     updatePieceIsFinished,
   } = useAppStore();
+  
+  const { gameId } = useParams();
+
+  const game = gameId ? state.getGame(gameId) : undefined;
+
   const [movePieceState, setMovePieceState] = useState<MovePieceActionState>({
     isLoading: false,
     error: null,
@@ -48,9 +55,13 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
   const isConnected = status === "connected";
   const canMovePiece = isConnected && !movePieceState.isLoading;
 
+const currentPlayer = gameId &&address
+  ? state.players[`${gameId}_${address}`]
+  : undefined;
+
   const executeMovePiece = useCallback(
-    async (gameId: string, playerIndex: number, pieceIndex: number) => {
-      if (!canMovePiece || !account) {
+    async (pieceIndex: number) => {
+      if (!canMovePiece || !account || !currentPlayer) {
         const errorMsg = !account ? "Please connect your controller" : "";
         setMovePieceState((prev) => ({ ...prev, error: errorMsg }));
         return;
@@ -68,7 +79,7 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
         const tx = await client.gamesystem.createGame(
           account as Account,
           gameId,
-          playerIndex,
+          currentPlayer.index,
           pieceIndex
         );
         console.log("📥 executing move piece transaction:", tx);
@@ -81,9 +92,9 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
         }
 
         if (tx && tx.code === "SUCCESS") {
-          updateGameCurrentTurn(game?.current_turn || 0);
-          updateGameDiceRoll(game?.dice_roll || "DICE_NOT_ROLLED");
-          updateGameWinner(game?.winner || 1000);
+          updateGameCurrentTurn(Number(game?.current_turn) || 0);
+          updateGameDiceRoll(String(game?.dice_roll) || "DICE_NOT_ROLLED");
+          updateGameWinner(Number(game?.winner) || 1000);
 
           updatePiecePosition(piece?.position || 0);
           updateRoller(diceRoll?.roller || "");
