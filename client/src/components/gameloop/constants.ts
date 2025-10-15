@@ -129,3 +129,35 @@ export const STATE = {
 } as const;
 
 export type GameState = (typeof STATE)[keyof typeof STATE];
+
+export const hexToNumber = (hexValue: string | number): number => {
+  if (typeof hexValue === "number") return hexValue;
+  if (typeof hexValue === "string" && hexValue.startsWith("0x")) {
+    return parseInt(hexValue, 16);
+  }
+  if (typeof hexValue === "string") {
+    return parseInt(hexValue, 10);
+  }
+  return 0;
+};
+
+export const hexToUtf8String = (hexValue: string): string => {
+  if (typeof hexValue !== "string" || !hexValue.startsWith("0x")) {
+    throw new Error("Invalid hex string");
+  }
+  const hex = hexValue.slice(2);
+  let str = "";
+  for (let i = 0; i < hex.length; i += 2) {
+    const code = parseInt(hex.substr(i, 2), 16);
+    if (code) str += String.fromCharCode(code);
+  }
+  return str;
+};
+
+export const utf8StringToHex = (str: string): string => {
+  let hex = "";
+  for (let i = 0; i < str.length; i++) {
+    hex += str.charCodeAt(i).toString(16).padStart(2, "0");
+  }
+  return "0x" + hex;
+};
