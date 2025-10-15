@@ -1,5 +1,8 @@
 # StarkDice 🎲
 
+<img width="1512" height="860" alt="Screenshot 2025-10-15 at 23 04 15" src="https://github.com/user-attachments/assets/a32e318d-f91b-46ac-98dc-eb946e5f0318" />
+
+
 StarkDice is a **multiplayer Ludo game built on Starknet** using the [Dojo engine](https://book.dojoengine.org/).  
 The goal is to showcase the power of on-chain gaming by combining **provably fair dice rolls**, **multiplayer interaction**, and **decentralized logic**.
 
@@ -14,6 +17,12 @@ The goal is to showcase the power of on-chain gaming by combining **provably fai
 - 🌐 **Starknet-powered** for low fees and fast execution
 
 ---
+
+## Tech Stack
+- Cairo v2 & Dojo Engine 🏗️ (on-chain game logic)
+- Torii Indexer 🔍 (real-time data sync)
+- React + Vite ⚡ (frontend client)
+- Starknet.js 🌐 (contract interaction)
 
 ## Repository Structure
 
