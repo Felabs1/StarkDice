@@ -157,7 +157,7 @@ It’s a small step toward a trustless, transparent, and fun Web3 gaming ecosyst
 - 🪙 Player reward tokens and leaderboard
 - 🧠 AI-assisted auto-play for single-player mode
 ## 🎥 Demo & Screenshots
-- 🎬 Watch Demo
+- 🎬 (Watch demo)[https://www.youtube.com/watch?v=stvxRU1C8-U]
 ### 🖼️ Gameplay Screenshots
 #### Dice roll interface
 
