@@ -1,9 +1,17 @@
-import {useState} from 'react';
-import { Play, Users, Settings, Trophy, Coins, Shield, Plus } from 'lucide-react';
+import { useState } from "react";
+import {
+  Play,
+  Users,
+  Settings,
+  Trophy,
+  Coins,
+  Shield,
+  Plus,
+} from "lucide-react";
 // import useAppStore from '../../zustand/store';
-import { useStarknetConnect } from '../../dojo/hooks/useStarknetConnect';
-import CreateRoom from "./CreateRoom"
-import JoinRoom from './JoinRoom';
+import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
+import CreateRoom from "./CreateRoom";
+import JoinRoom from "./JoinRoom";
 
 interface BodyProps {
   isWalletConnected: boolean;
@@ -11,31 +19,33 @@ interface BodyProps {
   setGameMode: (mode: string) => void;
 }
 
-const Body: React.FC<BodyProps> = ({ isWalletConnected, gameMode, setGameMode }) => {
+const Body: React.FC<BodyProps> = ({
+  isWalletConnected,
+  gameMode,
+  setGameMode,
+}) => {
   // const player = useAppStore((state) => state.player);
-const { status, address } = useStarknetConnect();
-const [showCreateRoom, setShowCreateRoom] = useState(false);
-const [showJoinRoom, setShowJoinRoom] = useState(false);
+  const { status, address } = useStarknetConnect();
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
+  const [showJoinRoom, setShowJoinRoom] = useState(false);
 
   const closeCreateRoom = () => {
     setShowCreateRoom(false);
   };
 
-    const handleCreateRoom = () => {
+  const handleCreateRoom = () => {
     setShowCreateRoom(true);
   };
 
-    const closeJoinRoom = () => {
+  const closeJoinRoom = () => {
     setShowJoinRoom(false);
   };
 
-    const handleJoinRoom = () => {
+  const handleJoinRoom = () => {
     setShowJoinRoom(true);
   };
 
-  
-
-const isConnected = status === "connected";
+  const isConnected = status === "connected";
   return (
     <div className="relative z-10 flex items-center justify-center p-4">
       <div className="bg-gray-800/90 backdrop-blur-lg rounded-3xl shadow-2xl p-8 max-w-lg w-full border border-gray-700/50">
@@ -52,19 +62,26 @@ const isConnected = status === "connected";
 
         {/* Game modes */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4 text-center">Game Mode</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 text-center">
+            Game Mode
+          </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { id: 'casual', name: 'Casual', icon: Play, desc: 'Free to play' },
-              { id: 'stake', name: 'Stake Game', icon: Coins, desc: 'Bet ETH' }
+              {
+                id: "casual",
+                name: "Casual",
+                icon: Play,
+                desc: "Free to play",
+              },
+              { id: "stake", name: "Stake Game", icon: Coins, desc: "Bet ETH" },
             ].map((mode) => (
               <button
                 key={mode.id}
                 onClick={() => setGameMode(mode.id)}
                 className={`p-4 rounded-2xl border-2 transition-all ${
                   gameMode === mode.id
-                    ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                    : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500'
+                    ? "border-purple-500 bg-purple-500/20 text-purple-300"
+                    : "border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500"
                 }`}
               >
                 <mode.icon className="w-6 h-6 mx-auto mb-2" />
@@ -77,7 +94,7 @@ const isConnected = status === "connected";
 
         {/* Action buttons */}
         <div className="space-y-4">
-          <button
+          {/* <button
             disabled={!isConnected}
             className={`w-full py-4 px-6 rounded-2xl font-bold text-lg shadow-lg transition-all duration-200 flex items-center justify-center space-x-3 ${
               isConnected
@@ -87,29 +104,29 @@ const isConnected = status === "connected";
           >
             <Play className="w-6 h-6" />
             <span>{isConnected ? 'Quick Match' : 'Connect Wallet to Play'}</span>
-          </button>
+          </button> */}
 
           <div className="grid grid-cols-2 gap-3">
-            <button 
+            <button
               onClick={handleCreateRoom}
               disabled={!isConnected}
               className={`py-3 px-4 rounded-2xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
                 isConnected
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl transform hover:scale-105'
-                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl transform hover:scale-105"
+                  : "bg-gray-700 text-gray-500 cursor-not-allowed"
               }`}
             >
               <Plus className="w-4 h-4" />
               <span>Create</span>
             </button>
 
-            <button 
+            <button
               onClick={handleJoinRoom}
               disabled={!isConnected}
               className={`py-3 px-4 rounded-2xl font-semibold shadow-lg transition-all duration-200 flex items-center justify-center space-x-2 ${
                 isConnected
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-xl transform hover:scale-105'
-                  : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-xl transform hover:scale-105"
+                  : "bg-gray-700 text-gray-500 cursor-not-allowed"
               }`}
             >
               <Users className="w-4 h-4" />
@@ -127,18 +144,18 @@ const isConnected = status === "connected";
             <span>Settings</span>
           </button>
         </div>
-          <CreateRoom
-              isOpen={showCreateRoom}
-              onClose={closeCreateRoom}
-              isWalletConnected={isConnected}
-              gameMode={gameMode}
-            />
+        <CreateRoom
+          isOpen={showCreateRoom}
+          onClose={closeCreateRoom}
+          isWalletConnected={isConnected}
+          gameMode={gameMode}
+        />
 
-            <JoinRoom
-              isOpen={showJoinRoom}
-              onClose={closeJoinRoom}
-              isWalletConnected={isConnected}
-            />
+        <JoinRoom
+          isOpen={showJoinRoom}
+          onClose={closeJoinRoom}
+          isWalletConnected={isConnected}
+        />
 
         {/* Game stats */}
         {isConnected && (

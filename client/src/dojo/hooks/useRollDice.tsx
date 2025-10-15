@@ -19,19 +19,17 @@ interface RollDiceActionState {
 
 interface UseRollDiceActionReturn {
   rollDiceState: RollDiceActionState;
-  executeRollDice: (
-    value: number
-  ) => Promise<void>;
+  executeRollDice: (value: number) => Promise<void>;
   canRollDice: boolean;
   resetRollDiceState: () => void;
 }
 
 export const useRollDiceAction = (): UseRollDiceActionReturn => {
-  const { account} = useAccount();
+  const { account } = useAccount();
   const { status, address } = useStarknetConnect();
   const { client } = useDojoSDK();
-  const {game_id} = useStarkDiceStore();
-  const {state } = useStarkDiceEntities();
+  const { game_id } = useStarkDiceStore();
+  const { state } = useStarkDiceEntities();
   const {
     ludoPlayer,
     piece,
@@ -50,15 +48,13 @@ export const useRollDiceAction = (): UseRollDiceActionReturn => {
 
   const game = gameId ? state.getGame(gameId) : undefined;
 
-  const playerPieces = gameId &&  address 
-  ? state.getPiecesByPlayer(gameId, address) 
-  : [];
+  const playerPieces =
+    gameId && address ? state.getPiecesByPlayer(gameId, address) : [];
 
-  console.log(address,gameId,state.players)
+  console.log(address, gameId, state.players);
 
-  const currentPlayer = gameId &&address
-  ? state.players[`${gameId}_${address}`]
-  : undefined;
+  const currentPlayer =
+    gameId && address ? state.players[`${gameId}_${address}`] : undefined;
 
   const [rollDiceState, setRollDiceState] = useState<RollDiceActionState>({
     isLoading: false,
@@ -73,8 +69,10 @@ export const useRollDiceAction = (): UseRollDiceActionReturn => {
     !rollDiceState.isLoading &&
     game?.is_active === true &&
     game?.current_turn?.toString() === currentPlayer?.index?.toString();
+  console.log("current turn game ", game?.current_turn.toString());
+  console.log("current turn player ", currentPlayer?.index.toString());
   //console.log("dice clicker ", ludoPlayer);
-  console.log("----->",game?.current_turn,currentPlayer?.index);
+  console.log("----->", game?.current_turn, currentPlayer?.index);
   const executeRollDice = useCallback(
     async (value: number) => {
       if (!canRollDice || !account) {
@@ -90,7 +88,7 @@ export const useRollDiceAction = (): UseRollDiceActionReturn => {
           txStatus: "PENDING",
         });
 
-        if(!currentPlayer) return;
+        if (!currentPlayer) return;
 
         console.log("📥 Executing join game transaction...");
         // console.log("client", client);

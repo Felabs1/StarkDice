@@ -16,9 +16,7 @@ interface MovePieceActionState {
 
 interface useMovePieceActionReturn {
   movePieceState: MovePieceActionState;
-  executeMovePiece: (
-    pieceIndex: number
-  ) => Promise<void>;
+  executeMovePiece: (pieceIndex: number) => Promise<void>;
   canMovePiece: boolean;
   resetMovePieceState: () => void;
 }
@@ -27,7 +25,7 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
   const { account } = useAccount();
   const { status, address } = useStarknetConnect();
   const { client } = useDojoSDK();
-  const {state } = useStarkDiceEntities();
+  const { state } = useStarkDiceEntities();
   const {
     diceRoll,
     piece,
@@ -41,7 +39,7 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
     updatePieceIsHome,
     updatePieceIsFinished,
   } = useAppStore();
-  
+
   const { gameId } = useParams();
 
   const game = gameId ? state.getGame(gameId) : undefined;
@@ -55,9 +53,8 @@ export const useMovePieceAction = (): useMovePieceActionReturn => {
   const isConnected = status === "connected";
   const canMovePiece = isConnected && !movePieceState.isLoading;
 
-const currentPlayer = gameId &&address
-  ? state.players[`${gameId}_${address}`]
-  : undefined;
+  const currentPlayer =
+    gameId && address ? state.players[`${gameId}_${address}`] : undefined;
 
   const executeMovePiece = useCallback(
     async (pieceIndex: number) => {
@@ -76,7 +73,7 @@ const currentPlayer = gameId &&address
         });
         console.log("📤 Executing create game transaction...");
 
-        const tx = await client.gamesystem.createGame(
+        const tx = await client.piece_system.movePiece(
           account as Account,
           gameId,
           currentPlayer.index,
