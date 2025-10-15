@@ -84,13 +84,53 @@ torii --config torii_dev.toml
 4. Move your Ludo pieces strategically to win.
 5. Watch the real-time state sync update for all connected players.
 
-## 🧰 Code Highlight — Provably Fair Dice Roll
+## 🧰 Code Highlight — Moving piece from diceroll
 ```rust
-fn roll_dice(player: ContractAddress) -> u8 {
-    // pseudo-randomness using block hash & player address
-    let seed = get_block_hash() ^ player.into();
-    (seed % 6) + 1
-}
+   fn move_piece(
+            ref self: ContractState, game_id: felt252, player_index: u8, piece_index: u8,
+        ) {
+            let player_address: ContractAddress = get_caller_address();
+            let mut world = self.world_default();
+            let mut game: Game = world.read_model(game_id);
+
+            assert(game.dice_roll == 'DICE_ROLLED', 'dice_not_rolled');
+
+            let mut player: Player = world.read_model((game_id, player_address));
+            let mut piece: Piece = world.read_model((game_id, player_index, piece_index));
+
+            // ✅ Fix: compare against piece.player_index instead of piece_index
+            // POSTPONED: will add player.index assertions after hackathon
+            assert(piece.player_index == player_index, 'NOT_YOUR_TURN');
+
+            let mut dice_roll: DiceRoll = world.read_model((game_id, player_index));
+            let steps = dice_roll.value;
+
+            let piece_eligible: bool = piece.is_eligible(player_index, steps);
+            if piece_eligible {
+                piece.increment_piece_position(steps);
+
+                // inquire the new position
+                let is_kill = self
+                    .check_for_kill(game_id, player_index, piece_index, piece.position);
+
+                if is_kill || steps == 6 {
+                    // ✅ Fix: assignment, not comparison
+                    game.dice_roll = 'DICE_NOT_ROLLED';
+                    game.is_active = true;
+                } else {
+                    game.increment_turn();
+                    game.is_active = true;
+                }
+                // self.has_player_won(game_id, player_index);
+
+            } else {
+                game.increment_turn();
+                game.is_active = true;
+            }
+
+            world.write_model(@piece);
+            world.write_model(@game);
+        }
 ```
 
 Each roll depends on verifiable on-chain data, making it impossible to manipulate outcomes.
@@ -120,8 +160,12 @@ It’s a small step toward a trustless, transparent, and fun Web3 gaming ecosyst
 - 🎬 Watch Demo
 ### 🖼️ Gameplay Screenshots
 #### Dice roll interface
+
 #### Game board view
+<img width="1512" height="982" alt="Screenshot 2025-10-15 at 18 03 37" src="https://github.com/user-attachments/assets/e040d919-08a2-4614-b2f9-89890b1808ec" />
+
 #### Multiplayer lobby
+<img width="1512" height="864" alt="Screenshot 2025-10-16 at 00 24 37" src="https://github.com/user-attachments/assets/654d7873-1677-4e44-8d7b-e680fb9d164d" />
 
 ## 🏁 Judging Criteria Alignment
 
@@ -133,7 +177,7 @@ It’s a small step toward a trustless, transparent, and fun Web3 gaming ecosyst
 | **Presentation & Clarity** | Clear documentation, visuals, and video demo |
 | **Progress During Hackathon** | Significant progress: contracts, indexer, and front-end integration achieved |
 
-## 🧑‍💻 Authors
-Built by Felix Awere and the Twiga Devs
-A team of Web3 builders from Kisumu passionate about on-chain games and decentralized systems.
-Built with ❤️ using Dojo on Starknet
+## 🧑‍💻 Team
+Built with pride by
+- Felix Awere
+- Peter Kagwe
