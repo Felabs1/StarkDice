@@ -23,6 +23,7 @@ The goal is to showcase the power of on-chain gaming by combining **provably fai
 - Torii Indexer 🔍 (real-time data sync)
 - React + Vite ⚡ (frontend client)
 - Starknet.js 🌐 (contract interaction)
+- BabylonJs 
 
 ## Repository Structure
 
