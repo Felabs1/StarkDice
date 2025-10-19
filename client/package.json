@@ -8,6 +8,7 @@
     "dev:https": "VITE_LOCAL_HTTPS=true vite",
     "dev:http": "VITE_LOCAL_HTTPS=false vite",
     "build": "tsc -b && vite build",
+    "build:fast": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:https": "VITE_LOCAL_HTTPS=true vite preview",
