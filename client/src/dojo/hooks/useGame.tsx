@@ -15,7 +15,7 @@ interface UseGameReturn {
 
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const GAME_QUERY = `query GetGames {
-  dojoStarterGameModels {
+  starkdiceGameModels {
     edges {
       node {
         id
@@ -70,12 +70,12 @@ const fetchGameData = async (): Promise<Game[] | null> => {
     const result = await response.json();
     console.log("📡 GraphQL response:", result);
 
-    if (!result.data?.dojoStarterGameModels?.edges?.length) {
+    if (!result.data?.starkdiceGameModels?.edges?.length) {
       console.log("❌ No Game found in response");
       return null;
     }
 
-    const edges = result.data.dojoStarterGameModels.edges;
+    const edges = result.data.starkdiceGameModels.edges;
     const rawGameData: Game[] = edges.map((edge: any) => {
       const node = edge.node;
       return {
@@ -164,9 +164,9 @@ export const useGame = (): UseGameReturn => {
 
             setTimeout(() => {
               if (
-                entities.models["dojo_starter-Game"]["is_active"].value === true
+                entities.models["starkdice-Game"]["is_active"].value === true
               ) {
-                const gameId = entities.models["dojo_starter-Game"]["id"].value;
+                const gameId = entities.models["starkdice-Game"]["id"].value;
                 navigate(`/game/${hexToUtf8String(gameId)}`);
               }
             }, 2000);

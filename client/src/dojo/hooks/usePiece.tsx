@@ -15,7 +15,7 @@ interface UsePieceReturn {
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const PIECE_QUERY = `
     query GetPiece($gameId: felt252!) {
-        dojoStarterPieceModels(where: { game_id: $gameId}) {
+        starkdicePieceModels(where: { game_id: $gameId}) {
             edges {
                 node {
                     game_id
@@ -83,12 +83,12 @@ const fetchPieceData = async (gameId: string): Promise<Piece[] | null> => {
     const result = await response.json();
     console.log("📡 GraphQL response:", result);
 
-    if (!result.data?.dojoStarterPieceModels?.edges?.length) {
+    if (!result.data?.starkdicePieceModels?.edges?.length) {
       console.log("❌ No Piece found in response");
       return null;
     }
 
-    const edges = result.data.dojoStarterPieceModels.edges;
+    const edges = result.data.starkdicePieceModels.edges;
     const rawPieceData: Piece[] = edges.map((edge: any) => {
       const node = edge.node;
       return {

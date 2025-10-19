@@ -2,8 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
-import { PlayerProfile } from '../../zustand/store';
-import useAppStore from '../../zustand/store';
+import { PlayerProfile } from "../../zustand/store";
+import useAppStore from "../../zustand/store";
 
 interface UsePlayerReturn {
   player: PlayerProfile | null;
@@ -16,7 +16,7 @@ interface UsePlayerReturn {
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const PLAYER_QUERY = `
     query GetPlayer($playerOwner: ContractAddress!) {
-        dojoStarterPlayerProfileModels(where: { owner: $playerOwner }) {
+        starkdicePlayerProfileModels(where: { owner: $playerOwner }) {
             edges {
                 node {
                     owner
@@ -32,13 +32,13 @@ const PLAYER_QUERY = `
 
 // Helper to convert hex values to numbers
 const hexToNumber = (hexValue: string | number): number => {
-  if (typeof hexValue === 'number') return hexValue;
+  if (typeof hexValue === "number") return hexValue;
 
-  if (typeof hexValue === 'string' && hexValue.startsWith('0x')) {
+  if (typeof hexValue === "string" && hexValue.startsWith("0x")) {
     return parseInt(hexValue, 16);
   }
 
-  if (typeof hexValue === 'string') {
+  if (typeof hexValue === "string") {
     return parseInt(hexValue, 10);
   }
 
@@ -46,7 +46,9 @@ const hexToNumber = (hexValue: string | number): number => {
 };
 
 // Function to fetch player data from GraphQL
-const fetchPlayerData = async (playerOwner: string): Promise<PlayerProfile | null> => {
+const fetchPlayerData = async (
+  playerOwner: string
+): Promise<PlayerProfile | null> => {
   try {
     console.log("🔍 Fetching player with owner:", playerOwner);
 
@@ -55,20 +57,21 @@ const fetchPlayerData = async (playerOwner: string): Promise<PlayerProfile | nul
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: PLAYER_QUERY,
-        variables: { playerOwner }
+        variables: { playerOwner },
       }),
     });
 
     const result = await response.json();
     console.log("📡 GraphQL response:", result);
 
-    if (!result.data?.dojoStarterPlayerProfileModels?.edges?.length) {
+    if (!result.data?.starkdicePlayerProfileModels?.edges?.length) {
       console.log("❌ No player found in response");
       return null;
     }
 
     // Extract player data
-    const rawPlayerData = result.data.dojoStarterPlayerProfileModels.edges[0].node;
+    const rawPlayerData =
+      result.data.starkdicePlayerProfileModels.edges[0].node;
     console.log("📄 Raw player data:", rawPlayerData);
 
     // Convert hex values to numbers - using your structure
@@ -81,7 +84,6 @@ const fetchPlayerData = async (playerOwner: string): Promise<PlayerProfile | nul
 
     console.log("✅ Player data after conversion:", playerData);
     return playerData;
-
   } catch (error) {
     console.error("❌ Error fetching player:", error);
     throw error;
@@ -94,11 +96,11 @@ export const usePlayer = (): UsePlayerReturn => {
   const [error, setError] = useState<Error | null>(null);
   const { account } = useAccount();
 
-  const storePlayer = useAppStore(state => state.player);
-  const setPlayer = useAppStore(state => state.setPlayer);
+  const storePlayer = useAppStore((state) => state.player);
+  const setPlayer = useAppStore((state) => state.setPlayer);
 
-  const userAddress = useMemo(() =>
-    account ? addAddressPadding(account.address).toLowerCase() : '',
+  const userAddress = useMemo(
+    () => (account ? addAddressPadding(account.address).toLowerCase() : ""),
     [account]
   );
 
@@ -119,9 +121,9 @@ export const usePlayer = (): UsePlayerReturn => {
 
       const updatedPlayer = useAppStore.getState().player;
       console.log("💾 Player in store after update:", updatedPlayer);
-
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error occurred');
+      const error =
+        err instanceof Error ? err : new Error("Unknown error occurred");
       console.error("❌ Error in refetch:", error);
       setError(error);
       setPlayer(null);
@@ -150,6 +152,6 @@ export const usePlayer = (): UsePlayerReturn => {
     player: storePlayer,
     isLoading,
     error,
-    refetch
+    refetch,
   };
 };

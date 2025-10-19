@@ -15,7 +15,7 @@ interface UsePlayerReturn {
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const PLAYER_QUERY = `
     query GetPlayer($gameId: felt252!) {
-        dojoStarterPlayerModels(where: { game_id: $gameId}) {
+        starkdicePlayerModels(where: { game_id: $gameId}) {
             edges {
                 node {
                     addr
@@ -81,12 +81,12 @@ const fetchPlayerData = async (gameId: string): Promise<Player[] | null> => {
     const result = await response.json();
     console.log("📡 GraphQL response:", result);
 
-    if (!result.data?.dojoStarterPlayerModels?.edges?.length) {
+    if (!result.data?.starkdicePlayerModels?.edges?.length) {
       console.log("❌ No Player found in response");
       return null;
     }
 
-    const edges = result.data.dojoStarterPlayerModels.edges;
+    const edges = result.data.starkdicePlayerModels.edges;
     const rawPlayerData: Player[] = edges.map((edge: any) => {
       const node = edge.node;
       return {

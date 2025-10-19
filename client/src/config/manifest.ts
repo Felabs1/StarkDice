@@ -17,7 +17,7 @@ const manifests = {
 
 // Get deployment type from environment with fallback
 // const deployType = import.meta.env.VITE_PUBLIC_DEPLOY_TYPE as string;
-const deployType = "localhost" as string;
+const deployType = "sepolia" as string;
 
 // Export the appropriate manifest with a fallback
 export const manifest =

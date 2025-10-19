@@ -5,7 +5,7 @@ import { constants } from "starknet";
 import { manifest } from "./manifest";
 
 // const { VITE_PUBLIC_DEPLOY_TYPE } = import.meta.env;
-const VITE_PUBLIC_DEPLOY_TYPE = "localhost" as any;
+const VITE_PUBLIC_DEPLOY_TYPE = "sepolia" as any;
 console.log(constants);
 
 console.log("VITE_PUBLIC_DEPLOY_TYPE", VITE_PUBLIC_DEPLOY_TYPE);
@@ -43,13 +43,13 @@ const getDefaultChainId = () => {
 
 // were gonna hard code contract address
 const DICE_CONTRACT = manifest.contracts.find(
-  (contract) => contract.tag === "dojo_starter-dice_system"
+  (contract) => contract.tag === "starkdice-dice_system"
 )?.address as any;
 const GAME_CONTRACT = manifest.contracts.find(
-  (contract) => contract.tag === "dojo_starter-gamesystem"
+  (contract) => contract.tag === "starkdice-gamesystem"
 )?.address as any;
 const PIECE_CONTRACT = manifest.contracts.find(
-  (contract) => contract.tag === "dojo_starter-piece_system"
+  (contract) => contract.tag === "starkdice-piece_system"
 )?.address as any;
 
 // const CONTRACT_ADDRESS_GAME = getGameContractAddress();
@@ -108,8 +108,8 @@ const options: ControllerOptions = {
   chains: [{ rpcUrl: getRpcUrl() }],
   defaultChainId: getDefaultChainId(),
   policies,
-  namespace: "dojo_starter",
-  slot: "dojo_starter",
+  namespace: "starkdice",
+  slot: "starkdice",
 };
 
 const cartridgeConnector = new ControllerConnector(

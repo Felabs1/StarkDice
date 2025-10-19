@@ -2,7 +2,7 @@
   "world": {
     "class_hash": "0x57994b6a75fad550ca18b41ee82e2110e158c59028c4478109a67965a0e5b1e",
     "address": "0x3a7e28319f3617da4135893c711c79a1306adcd87cca4fbd0ceda50ae397683",
-    "seed": "dojo_starter",
+    "seed": "starkdice",
     "name": "Dojo starter",
     "entrypoints": [
       "uuid",
@@ -1679,7 +1679,7 @@
         }
       ],
       "init_calldata": [],
-      "tag": "dojo_starter-dice_system",
+      "tag": "starkdice-dice_system",
       "selector": "0x4f64378880b77037cb56f609db7bfd1414e38ab5d3c953c52c9c3bf4e51a45",
       "systems": ["roll_dice", "upgrade"]
     },
@@ -1911,7 +1911,7 @@
         }
       ],
       "init_calldata": [],
-      "tag": "dojo_starter-gamesystem",
+      "tag": "starkdice-gamesystem",
       "selector": "0x29f474a7f0c27b0e3255d72ffc00e770c62ed3602b0169d20a20f8e5cc25e00",
       "systems": ["spawn", "create_game", "join_game", "start_game", "upgrade"]
     },
@@ -2116,7 +2116,7 @@
         }
       ],
       "init_calldata": [],
-      "tag": "dojo_starter-piece_system",
+      "tag": "starkdice-piece_system",
       "selector": "0x1083e0f45490f440f559573bde4f6bbda3a591716aa9894986c34bc661223ca",
       "systems": ["move_piece", "upgrade"]
     }
@@ -2126,31 +2126,31 @@
     {
       "members": [],
       "class_hash": "0x375cffa5ba033c7409571aabe48c8fb4fbed18dbf2dc175b305ec28259f2e05",
-      "tag": "dojo_starter-DiceRoll",
+      "tag": "starkdice-DiceRoll",
       "selector": "0x2ee334c0e1cd345e8b9fb6a199fa51a2cbf92e027ff1722a854dffe986e0937"
     },
     {
       "members": [],
       "class_hash": "0x23d6b3bbe71d97189201c9d22170ae6e918d86040bd1b6792773bcb1009333d",
-      "tag": "dojo_starter-Game",
+      "tag": "starkdice-Game",
       "selector": "0x19e11cf1403e104998a158f43ec6ae232dc65cf5445bcb29fb9fb5b7bb6c171"
     },
     {
       "members": [],
       "class_hash": "0xfc7983ce59c089c3880e66a8187758ee431bceea937a3bc228174fc006bce2",
-      "tag": "dojo_starter-Piece",
+      "tag": "starkdice-Piece",
       "selector": "0x5b2aefb313f455bea553bc6f9137dcfd84f80fa5558c87c18f54d8e9d6b60c8"
     },
     {
       "members": [],
       "class_hash": "0x31cef3c5872512c731fd8841866819d89e641f64fb1596624e3761899784b85",
-      "tag": "dojo_starter-Player",
+      "tag": "starkdice-Player",
       "selector": "0x1cccb05d982525914bcdce99f0af51556dcb8d9f0e2317c0ad0221d13a809f9"
     },
     {
       "members": [],
       "class_hash": "0x30878df90ea9db0851587f52bf467a86ff1d7b335b250d1630f6d1c6bc37a6e",
-      "tag": "dojo_starter-PlayerProfile",
+      "tag": "starkdice-PlayerProfile",
       "selector": "0x1a90fc65bff7d47f4dadba615f6c98e9d27c77ece024573dc09a2645e7e7d63"
     }
   ],

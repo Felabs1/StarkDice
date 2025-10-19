@@ -77,7 +77,7 @@ const Header = ({
     return { color: "bg-yellow-500", text: "Loading..." };
   };
 
-  const VITE_PUBLIC_DEPLOY_TYPE = "localhost" as any;
+  const VITE_PUBLIC_DEPLOY_TYPE = "sepolia" as any;
   const getDeploymentType = () => {
     switch (VITE_PUBLIC_DEPLOY_TYPE) {
       case "localhost":
@@ -145,16 +145,16 @@ const Header = ({
             </div>
           )} */}
           <div className="text-center md:text-right">
-              <div className="flex items-center gap-2 text-sm mb-1">
-                <div
-                  className={`w-2 h-2 rounded-full animate-pulse ${playerStatus.color}`}
-                ></div>
-                <span className="text-slate-300">
-                  {playerStatus.text} • {deploymentType}
-                </span>
-              </div>
-              <div className="text-xs text-slate-400">{getStatusMessage()}</div>
+            <div className="flex items-center gap-2 text-sm mb-1">
+              <div
+                className={`w-2 h-2 rounded-full animate-pulse ${playerStatus.color}`}
+              ></div>
+              <span className="text-slate-300">
+                {playerStatus.text} • {deploymentType}
+              </span>
             </div>
+            <div className="text-xs text-slate-400">{getStatusMessage()}</div>
+          </div>
         </div>
 
         {/* Wallet connection */}
@@ -203,7 +203,6 @@ const Header = ({
             >
               <LogOut className="w-4 h-4" />
             </button>
-            
           </div>
         ) : (
           <button

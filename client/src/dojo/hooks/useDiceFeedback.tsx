@@ -17,7 +17,7 @@ interface UseDiceReturn {
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const GAME_QUERY = `
 query GetDiceRoll ($gameId: felt252!, turnNumber: u8!) {
-  dojoStarterDiceRollModels(where: {game_id: $gameId, turn_number: $turnNumber}) {
+  starkdiceDiceRollModels(where: {game_id: $gameId, turn_number: $turnNumber}) {
     edges {
       node {
         game_id
@@ -74,13 +74,13 @@ const fetchDiceData = async (
     const result = await response.json();
     console.log("📡 GraphQL response:", result);
 
-    if (!result.data?.dojoStarterDiceRollModels?.edges?.length) {
+    if (!result.data?.starkdiceDiceRollModels?.edges?.length) {
       console.log("❌ No Game found in response");
       return null;
     }
 
     const rawGameData: DiceRoll =
-      result.data.dojoStarterDiceRollModels.edges[0].node;
+      result.data.starkdiceDiceRollModels.edges[0].node;
 
     const diceRollData: DiceRoll = {
       game_id: hexToUtf8String(rawGameData.game_id),
@@ -165,7 +165,7 @@ export const useDice = (gameId: string, turnNumber: number): UseDiceReturn => {
             // console.log(entities.models);
             refetch();
 
-            if (entities.models["dojo_starter-DiceRoll"]["roller"].value) {
+            if (entities.models["starkdice-DiceRoll"]["roller"].value) {
               refetch();
             }
           }

@@ -9,7 +9,7 @@ import cartridgeConnector from "../config/cartridgeConnector";
 
 export default function StarknetProvider({ children }: PropsWithChildren) {
   // const { VITE_PUBLIC_DEPLOY_TYPE } = import.meta.env;
-  const VITE_PUBLIC_DEPLOY_TYPE = "localhost" as any;
+  const VITE_PUBLIC_DEPLOY_TYPE = "sepolia" as any;
 
   // Get RPC URL based on environment
   const getRpcUrl = () => {
